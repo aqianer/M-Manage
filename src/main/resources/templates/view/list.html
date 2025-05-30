@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <!-- TODO : 添加内联JavaScript支持 -->
+    <script th:inline="javascript"></script>
+    <title>药品管理</title>
+    <!-- 引入 Element UI 样式 -->
+    <!-- 修正后的样式引用 -->
+    <link th:href="@{/webjars/element-ui/2.15.14/lib/theme-chalk/index.css}" rel="stylesheet">
+    <style>
+    body {
+        background-image: url([[@{/img/bg1.webp}]]);
+        background-size: cover;
+        background-attachment: fixed;
+        background-color: rgba(13, 17, 23, 0.9) !important;
+        background-blend-mode: multiply;
+        color: #ffffff;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+
+    .el-card {
+        background-color: rgba(22, 27, 34, 0.85) !important;
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(48, 54, 61, 0.5) !important;
+    }
+    .el-header h1 {
+        margin: 0;
+        line-height: 60px;
+    }
+    .el-table {
+        margin-top: 20px;
+    }
+    .info-item {
+    margin-bottom: 12px;
+    padding: 8px 0;
+    border-bottom: 1px dashed #ebeef5;
+    }
+    .info-label {
+    display: inline-block;
+    width: 100px;
+    color: #909399;
+    font-weight: 500;
+    }
+
+    /* 权限标签增强样式 */
+    .role-admin {
+        background-color: #fef0f0 !important;
+        border-color: #f56c6c !important;
+        color: #f56c6c !important;
+    }
+    .role-member {
+        background-color: #fdf6ec !important;
+        border-color: #e6a23c !important;
+        color: #e6a23c !important;
+    }
+    .role-guest {
+        background-color: #f0f9eb !important;
+        border-color: #67c23a !important;
+        color: #67c23a !important;
+    }
+
+    .el-header {
+        background: linear-gradient(145deg, #161b22 0%, #0d1117 100%) !important;
+        box-shadow: 0 4px 12px rgba(1,4,9,0.6);
+        border-bottom: 1px solid #30363d !important;
+    }
+
+    .el-header h1 {
+        color: #58a6ff !important; /* Cursor风格蓝 */
+        text-shadow: 0 2px 8px rgba(88,166,255,0.2);
+    }
+
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <el-container>
+            <el-header style="background: #409EFF; color: #fff;">
+                <h1>实验室药品管理系统</h1>
+            </el-header>
+            
+            <el-main>
+                <!-- 新增药品对话框 -->
+                <el-dialog title="新增药品" :visible.sync="dialogFormVisible" width="600px">
+                    <el-form :model="form" :rules="rules" ref="form">
+                        <el-form-item label="药品名称" prop="name">
+                            <el-input v-model="form.name" auto-complete="off"></el-input>
+                        </el-form-item>
+                        <el-form-item label="CAS号" prop="casNumber">
+                            <el-input v-model="form.casNumber"></el-input>
+                        </el-form-item>
+                        <el-form-item label="存放位置" prop="storageLocation">
+                            <el-input v-model="form.storageLocation"></el-input>
+                        </el-form-item>
+                        <el-form-item label="分类" prop="classification">
+                            <el-select v-model="form.classification" placeholder="请选择">
+<!--                                TODO： 标签更新-->
+                                <el-option label="化学试剂" value="chemical"></el-option>
+                                <el-option label="生物制剂" value="bio"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="数量" prop="quantity">
+                            <el-input-number v-model="form.quantity" :min="0"></el-input-number>
+                        </el-form-item>
+                    </el-form>
+                    <div slot="footer">
+                        <el-button @click="dialogFormVisible = false">取消</el-button>
+                        <el-button type="primary" @click="submitForm">提交</el-button>
+                    </div>
+                </el-dialog>
+
+                <el-button type="primary" @click="handleAdd">新增药品</el-button>
+                
+                <el-table :data="chemicals" border style="width: 100%">
+                    <el-table-column type="expand">
+                        <template slot-scope="props">
+                            <div style="padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="display: flex; gap: 30px;">
+                                    <div style="flex: 1;">
+                                        <h3 style="color: #409EFF; margin-bottom: 15px;">基本属性</h3>
+                                        <div class="info-item">
+                                            <span class="info-label">CAS号：</span>
+                                            <el-tag type="info">{{ props.row.casNumber }}</el-tag>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">英文名称：</span>
+                                            {{ props.row.englishName || '暂无' }}
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">危险等级：</span>
+                                            <el-tag :type="getHazardTagType(props.row.hazardClass.name)">
+                                                {{ props.row.hazardClass.name }} ({{ props.row.hazardClass.symbol }})
+                                            </el-tag>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">存储条件：</span>
+                                            {{ props.row.storageCondition || '常温' }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="flex: 1; border-left: 1px solid #ebeef5; padding-left: 30px;">
+                                        <h3 style="color: #409EFF; margin-bottom: 15px;">库存详情</h3>
+                                        <div class="info-item">
+                                            <span class="info-label">当前库存：</span>
+                                            <el-progress 
+                                                :percentage="((props.row.currentStock/props.row.maxThreshold)*100).toFixed(2)" 
+                                                :color="getStockColor(props.row.currentStock, props.row.minThreshold)"
+                                                style="width: 200px; display: inline-block; vertical-align: middle;">
+                                            </el-progress>
+                                            <span style="margin-left: 10px;">
+                                                {{ props.row.currentStock }}/{{ props.row.maxThreshold }}
+                                            </span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">最后操作人：</span>
+                                            <el-tag 
+                                                effect="plain" 
+                                                :type="getRoleTagType(props.row.lastModifiedByRole)">
+                                                {{ props.row.lastModifiedBy || '系统' }}
+                                            </el-tag>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #ebeef5;">
+                                    <h3 style="color: #409EFF; margin-bottom: 10px;">安全说明</h3>
+                                    <p style="line-height: 1.6; color: #606266;">
+                                        {{ props.row.safetyDescription || '暂无安全说明信息' }}
+                                    </p>
+                                </div>
+                            </div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="name" label="名称">
+                        <template slot-scope="scope">
+                            {{ scope.row.name || '未知' }}
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="casNumber" label="CAS号"></el-table-column>
+                    <el-table-column prop="hazardClass.name" label="危险分类">
+                        <template slot-scope="scope">
+                            {{ scope.row.hazardClass.name || '未知' }}
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="currentStock" label="当前库存"></el-table-column>
+                    <el-table-column prop="location" label="存放位置"></el-table-column>
+
+                    <el-table-column label="操作" width="200">
+                        <template slot-scope="scope">
+                            <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
+                            <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                    <template slot="empty">
+                        <el-empty description="暂无药品数据"></el-empty>
+                    </template>
+                </el-table>
+            </el-main>
+        </el-container>
+    </div>
+
+    <!-- 引入 Vue 和 Element UI -->
+    <script th:src="@{/webjars/vue/2.6.14/dist/vue.min.js}"></script>
+    <script th:src="@{/webjars/element-ui/2.15.14/lib/index.js}"></script>
+    
+    <!-- 在Element UI之后添加axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+
+    <script th:inline="javascript">
+        Vue.use(ELEMENT);
+        
+        new Vue({
+            el: '#app',
+            data: {
+                dialogFormVisible: false,
+                form: {
+                    name: '',
+                    casNumber: '',
+                    classification: '',
+                    quantity: 0,
+                    storageLocation: '',
+                    status: '在库'
+                },
+                rules: {
+                    name: [{ required: true, message: '请输入药品名称', trigger: 'blur' }],
+                    casNumber: [{ pattern: /^\d{2,7}-\d{2}-\d$/, message: 'CAS号格式不正确' }]
+                },
+                chemicals: /*[[${chemicals}]]*/ []
+            },
+            methods: {
+                getRoleTagType(role) {
+                    const roleTypes = {
+                        'admin': {type: 'danger', effect: 'dark', class: 'role-admin'}, 
+                        'member': {type: 'warning', effect: 'dark', class: 'role-member'},
+                        'guest': {type: 'success', effect: 'dark', class: 'role-guest'}
+                    };
+                    return roleTypes[role] || {type: '', effect: 'plain'};
+                },
+                getStockColor(current, min) {
+                    if (current <= min) return '#F56C6C';
+                    if (current <= min * 1.2) return '#E6A23C';
+                    return '#67C23A';
+                },
+                getHazardTagType(name) {
+                    const types = {
+                        '氧化性': 'danger',
+                        '有害': 'warning',
+                        '环境危害': 'success'
+                    };
+                    return types[name] || 'info';
+                },
+                handleAdd() {
+                    this.dialogFormVisible = true;
+                },
+                submitForm() {
+                    this.$refs.form.validate(valid => {
+                        if (valid) {
+                            axios.post('/chemicals/add', this.form)
+                                .then(response => {
+                                    // 添加成功反馈和列表刷新
+                                    this.chemicals.push({...response.data}); 
+                                    this.dialogFormVisible = false;
+                                    this.$message.success('添加成功');
+                                    this.$refs.form.resetFields(); // 新增表单重置
+                                })
+                                .catch(error => {
+                                    // 增强错误提示
+                                    const msg = error.response?.data?.message || error.message;
+                                    this.$message.error(`添加失败: ${msg}`);
+                                    console.error('Error details:', error);
+                                });
+                        }
+                    });
+                },
+                handleEdit(row) {
+                    window.location.href = `/chemicals/edit/${row.id}`;
+                },
+                handleDelete(row) {
+                    if(confirm('确定删除该记录？')) {
+                        window.location.href = `/chemicals/delete/${row.id}`;
+                    }
+                }
+            },
+            mounted() {
+                console.log('First chemical:', this.chemicals[0]); // 详细输出第一个对象
+                console.log('Keys:', Object.keys(this.chemicals[0] || {})); // 输出对象属性键
+            }
+        });
+    </script>
+</body>
+</html>
