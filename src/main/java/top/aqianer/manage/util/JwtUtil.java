@@ -13,7 +13,7 @@ import top.aqianer.manage.exception.BusinessException;
 import top.aqianer.manage.model.LabMember;
 import top.aqianer.manage.repository.MemberRepository;
 
-@Component
+//@Component
 public class JwtUtil {
     private static String secret;
     public static long expiration;

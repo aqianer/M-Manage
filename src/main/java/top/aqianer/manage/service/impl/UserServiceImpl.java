@@ -90,6 +90,7 @@ public class UserServiceImpl implements UserService {
             }
         } else {
             // 成员注册分支也放入事务
+            member.setPermission(LabMember.Permission.valueOf("member"));
             memberRepository.save(member);
         }
     }
@@ -145,7 +146,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("用户ID不存在: " + userId));
 
         return org.springframework.security.core.userdetails.User.builder()
-                .username(member.getEmail())
+                .username(member.getMemberName())
                 .password(member.getPassword())
                 .roles(member.getPermission().name())
                 .build();
@@ -157,7 +158,7 @@ public class UserServiceImpl implements UserService {
         LabMember member = memberRepository.findByEmail(username)
                 .orElseThrow(() -> new BusinessException("用户不存在"));
         return org.springframework.security.core.userdetails.User.builder()
-                .username(member.getEmail())
+                .username(member.getMemberName())
                 .password(member.getPassword())
                 .roles(member.getPermission().name())
                 .build();

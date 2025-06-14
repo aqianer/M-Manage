@@ -17,7 +17,7 @@ import top.aqianer.manage.util.JwtUtil;
 
 import java.io.IOException;
 
-@Component
+// @Component  // 注释掉组件注解
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private UserService userServiceImpl;

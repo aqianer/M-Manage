@@ -1,5 +1,8 @@
 package top.aqianer.manage.controller;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +20,17 @@ public class PageController {
 
     @GetMapping("/register")
     public String registerPage(Model model) {
-        model.addAttribute("registerForm", new RegisterForm());
-        model.addAttribute("registerResponse",new RegisterResponse());
+        model.addAttribute("registrationForm", new RegisterForm());
+        model.addAttribute("registerResponse", new RegisterResponse());
         return "register";
+    }
+
+    @GetMapping("/home")
+    public String home(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails details = (UserDetails) authentication.getPrincipal();
+        // 添加用户信息和未读消息数
+        model.addAttribute("username", details.getUsername());
+        return "home";
     }
 }

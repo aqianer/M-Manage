@@ -87,7 +87,8 @@ CREATE TABLE `lab_member` (
   `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   FOREIGN KEY (`lab_id`) REFERENCES `laboratory`(`id`),
-  UNIQUE KEY `uk_member_phone` (`phone`)
+  UNIQUE KEY `uk_member_phone` (`phone`),
+  UNIQUE KEY `uk_member_email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='实验室成员表';
 
 

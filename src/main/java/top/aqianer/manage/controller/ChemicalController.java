@@ -29,24 +29,21 @@ public class ChemicalController {
     UserService userServiceImpl;
 
     @GetMapping("/list")
-    public String list(Model model) {
+    public ResponseEntity<?> list(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         // 添加未认证检查
         if (authentication instanceof AnonymousAuthenticationToken) {
             System.out.println("===============================");
-            return "redirect:/login";
+            return ResponseEntity.badRequest().body("认证失败");
         }
         String email = authentication.getName();
         Long labId = userServiceImpl.getLabIdByEmail(email);
-
-        if (labId == null) {
-            return "view/tips";
+        List<Chemical> chemicals = null;
+        if (labId != null) {
+            chemicals = chemicalServiceImpl.findAll(labId);
         }
-
-        List<Chemical> chemicals = chemicalServiceImpl.findAll(labId);
-        model.addAttribute("chemicals", chemicals);
-        return "view/list";
+        return ResponseEntity.ok(chemicals);
     }
 
 
