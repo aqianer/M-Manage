@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>403 - 访问被拒绝</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .error-container {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+        }
+        .error-code {
+            font-size: 8rem;
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+            .back-home {
+                background-color: #dc3545;
+                border-color: #dc3545;
+                transition: all 0.2s ease;
+            }
+            .back-home:hover {
+                background-color: #bb2d3b;
+                border-color: #bb2d3b;
+            }
+            .back-home:active {
+                background-color: #b02a37 !important;
+                border-color: #b02a37 !important;
+            }
+
+    </style>
+</head>
+<body>
+<div class="error-container text-center">
+    <div class="py-5">
+        <div class="error-code">403</div>
+        <h1 class="mb-3">访问被拒绝</h1>
+        <p class="lead text-muted">您没有权限访问此页面</p>
+        <div class="mt-4">
+            <button onclick="window.location.href='/login'" 
+                    class="btn btn-lg back-home text-white">返回首页</button>
+            <button class="btn btn-lg btn-outline-danger ms-2" 
+                    onclick="alert('请联系管理员邮箱：admin@lab.com')">联系管理员</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

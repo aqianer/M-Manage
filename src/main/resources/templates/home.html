@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>实验室综合管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --lab-primary: #238636;
+            --lab-secondary: #2c8c47;
+            --lab-bg: #f8f9fa;
+            --nav-border: #409EFF;
+            --title-font: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        .navbar-brand {
+            font-family: var(--title-font);
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: #e6e6e6 !important;
+            margin-right: 0.8rem; /* 缩小品牌标识与主导航的间距 */
+        }
+        
+        .nav-custom {
+            background: linear-gradient(145deg, #161b22 0%, #0d1117 100%);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-link-custom {
+            color: #e6e6e6 !important;
+            padding: 12px 20px;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-link-custom:hover {
+            background: rgba(64, 158, 255, 0.1);
+            border-left-color: var(--nav-border);
+        }
+        
+        .brand-icon {
+            width: 32px;
+            filter: invert(87%) sepia(28%) saturate(1207%) hue-rotate(162deg);
+        }
+        
+        /* 导航容器布局核心调整 */
+        .navbar-collapse {
+            flex-grow: 0 !important;
+            justify-content: flex-start; /* 主导航左对齐 */
+            width: 100%; /* 确保容器占满宽度 */
+        }
+        
+        .navbar-nav {
+            margin-left: 0 !important; /* 重置Bootstrap默认的左侧边距 */
+        }
+        
+        .navbar-nav .nav-item {
+            margin-right: 1.5rem; /* 保持菜单项间间距 */
+        }
+        
+        /* 用户面板强制右对齐 */
+        .user-panel {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-left: auto; /* 自动占据剩余空间，推至右侧 */
+            justify-content: flex-end;
+        }
+        
+        .badge-notification {
+            position: static;
+            transform: translateY(-2px);
+        }
+        
+        .dropdown-menu {
+            min-width: 240px;
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+        }
+       
+                /* 新增信息项布局样式 */
+        .info-item {
+            display: flex;          /* 使用Flex布局 */
+            gap: 0.8rem;           /* 标签与内容间距 */
+            margin-bottom: 0.8rem; /* 信息项上下间距 */
+        }
+        .info-label {
+            width: 80px;           /* 固定标签宽度（可根据实际调整） */
+            text-align: right;     /* 标签右对齐 */
+            color: #6c757d;        /* 标签颜色（浅灰色） */
+            font-weight: 500;      /* 标签字体加粗 */
+        }
+        .info-content {
+            flex-grow: 1;          /* 内容部分占据剩余空间 */
+        }
+        /* 调整垂直分隔线样式（可选优化） */
+        .vertical-divider {
+            width: 1px;
+            background-color: #e9ecef;
+            margin: 0 1.5rem;      /* 分隔线与两侧内容的间距 */
+        }
+        @media (min-width: 992px) {
+            .navbar-brand {
+                margin-right: 0.8rem; /* 大屏同步缩小间距 */
+            }
+            .navbar-collapse {
+                margin-left: 0;
+            }
+        }
+        
+        /* 补充菜单项悬停效果 */
+        .navbar-nav .nav-link {
+            transition: all 0.2s;
+            border-radius: 4px;
+        }
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        /* 小屏幕品牌名称隐藏 */
+        @media (max-width: 576px) {
+            .navbar-brand span {
+                display: none;
+            }
+        }
+
+        /* 红点动画 */
+        @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+        }
+        .badge.bg-danger {
+        animation: pulse 1.5s infinite;
+        }
+
+        /* 下拉菜单悬停效果 */
+        .dropdown-item:hover {
+        background-color: #f8f9fa;
+        transition: background-color 0.2s ease;
+        }
+
+    </style>
+</head>
+<body>
+<div class="lab-container">
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg nav-custom navbar-dark">
+        <div class="container-fluid">
+            <!-- 品牌标识调整 -->
+            <a class="navbar-brand text-light d-flex align-items-center" href="#" style="margin-right: 1.2rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="me-2"
+                     style="width: 1.4em; height: 1.4em;">
+                    <path fill="#63E6BE"
+                          d="M288 0L160 0 128 0C110.3 0 96 14.3 96 32s14.3 32 32 32l0 132.8c0 11.8-3.3 23.5-9.5 33.5L10.3 406.2C3.6 417.2 0 429.7 0 442.6C0 480.9 31.1 512 69.4 512l309.2 0c38.3 0 69.4-31.1 69.4-69.4c0-12.8-3.6-25.4-10.3-36.4L329.5 230.4c-6.2-10.1-9.5-21.7-9.5-33.5L320 64c17.7 0 32-14.3 32-32s-14.3-32-32-32L288 0zM192 196.8L192 64l64 0 0 132.8c0 23.7 6.6 46.9 19 67.1L309.5 320l-171 0L173 263.9c12.4-20.2 19-43.4 19-67.1z"/>
+                </svg>
+                实验室管理系统
+            </a>
+
+            <!-- 折叠按钮（小屏幕） -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- 主导航菜单 -->
+            <div class="collapse navbar-collapse" id="mainNav" style="margin-left: -0.5rem;"> <!-- 新增负边距拉近与品牌标识的距离 -->
+                <!-- 功能菜单调整 -->
+                <ul class="navbar-nav mb-2 mb-lg-0">
+                    <li class="nav-item mx-2"> <!-- 增加左右边距 -->
+                        <a class="nav-link active" aria-current="page" href="#" onclick="loadModule('home')">首页</a>
+                    </li>
+                    <li class="nav-item mx-2">
+                        <a class="nav-link" href="#" onclick="loadModule('chemical')">药品管理</a>
+                    </li>
+                    <li class="nav-item mx-2">
+                        <a class="nav-link" href="#" onclick="loadModule('equipment')">器材管理</a>
+                    </li>
+                </ul>
+
+
+                <!-- 用户信息面板 -->
+                <div class="d-flex align-items-center user-panel position-relative gap-2"> <!-- 添加gap-2控制元素间距 -->
+                    <!-- 用户头像优化 -->
+                    <img th:src="@{/images/default-avatar.png}" alt="用户头像" class="rounded-circle me-2"
+                         style="width: 36px; height: 36px; border: 2px solid rgba(255,255,255,0.2);">
+                    <div class="dropdown">
+                        <a class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="d-none d-sm-inline me-2">[[${#authentication.name}]]</span>
+                            <!-- 未读消息红点提示 -->
+                            <span class="position-relative">
+                                <i class="fas fa-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    3
+                                    <span class="visually-hidden">未读消息</span>
+                                </span>
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item d-flex justify-content-between align-items-center" href="#">
+                                    个人中心
+                                    <span class="badge bg-danger rounded-pill">3</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex justify-content-between align-items-center" href="#">
+                                    修改密码
+                                    <span class="badge bg-danger rounded-pill">1</span>
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <a class="dropdown-item" th:href="@{/logout}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>退出登录
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区（模拟数据容器） -->
+    <!-- 主内容区 -->
+    <div class="module-container" id="homeModule">
+        <!-- 统计卡片组 -->
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">今日入库</h6>
+                        <h3 class="card-title">12</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">待处理申请</h6>
+                        <h3 class="card-title">5</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">库存预警</h6>
+                        <h3 class="card-title">3</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 最近操作 -->
+        <div class="card mt-4">
+            <div class="card-header">最近操作记录</div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">[10:30] 张三 提交药品领用申请</li>
+                    <li class="list-group-item">[09:15] 李四 完成器材归还登记</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="chemicalModule" class="module-container d-none">
+        <div class="container py-4">
+            <div class="table-container">
+                <div class="table-header">
+                    <div class="table-title">药品列表</div>
+                    <div class="table-actions">
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i>新增药品
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-filter me-1"></i>筛选
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th style="width: 50px"></th>
+                            <th>药品名称</th>
+                            <th>CAS号</th>
+                            <th>库存数量</th>
+                            <th>存储位置</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="chemicalTableBody">
+                        <!-- 表格内容将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination-container">
+                    <nav>
+                        <ul class="pagination mb-0">
+                            <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item"><a class="page-link" href="#">下一页</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="equipmentModule" class="module-container d-none">器材管理模块</div>
+</div>
+<script>
+    // 模拟药品数据
+    const chemicals = [
+        {
+            id: 1,
+            name: "阿司匹林",
+            casNumber: "50-78-2",
+            quantity: 50,
+            storageLocation: "A区-3层-货架2",
+            englishName: "Aspirin",
+            hazardClass: { name: "低风险", symbol: "⚠️" },
+            storageCondition: "常温干燥处"
+        },
+        {
+            id: 2,
+            name: "青霉素钠",
+            casNumber: "69-57-8",
+            quantity: 120,
+            storageLocation: "B区-1层-冷藏柜",
+            englishName: "Penicillin G Sodium",
+            hazardClass: { name: "中风险", symbol: "☣️" },
+            storageCondition: "2-8℃冷藏"
+        },
+        {
+            id: 3,
+            name: "硫酸",
+            casNumber: "7664-93-9",
+            quantity: 25,
+            storageLocation: "C区-腐蚀品柜",
+            englishName: "Sulfuric Acid",
+            hazardClass: { name: "高风险", symbol: "☠️" },
+            storageCondition: "耐酸容器，单独存放"
+        },
+        {
+            id: 4,
+            name: "葡萄糖",
+            casNumber: "50-99-7",
+            quantity: 200,
+            storageLocation: "A区-2层-货架5",
+            englishName: "Glucose",
+            hazardClass: { name: "低风险", symbol: "⚠️" },
+            storageCondition: "常温干燥处"
+        }
+    ];
+
+    // 渲染表格主函数
+    function renderChemicalTable() {
+        const tbody = document.getElementById('chemicalTableBody');
+        tbody.innerHTML = '';
+
+        chemicals.forEach(chem => {
+            // 主行
+            tbody.innerHTML += `
+                <tr data-id="${chem.id}">
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary expand-btn">
+                            <i class="fas fa-chevron-down expand-icon"></i>
+                        </button>
+                    </td>
+                    <td class="fw-medium">${chem.name}</td>
+                    <td>${chem.casNumber}</td>
+                    <td>
+                        <span class="badge bg-primary rounded-pill">${chem.quantity}</span>
+                    </td>
+                    <td>${chem.storageLocation}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-warning action-btn edit-btn me-2">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger action-btn delete-btn">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                <!-- 详情行 -->
+                <tr class="detail-row" id="detail-${chem.id}">
+                    <td colspan="6" class="p-0 border-0">
+                        <div class="detail-content d-none">
+                            <div class="d-flex">
+                                <div class="flex-grow-1">
+                                    <h5 class="text-primary mb-3"><i class="fas fa-info-circle me-2"></i>基本属性</h5>
+                                    <div class="info-item">
+                                        <span class="info-label">CAS号：</span>
+                                        <span class="badge bg-secondary">${chem.casNumber}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">英文名称：</span>
+                                        <span>${chem.englishName || '暂无'}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">危险等级：</span>
+                                        <span class="hazard-badge ${getHazardBadgeClass(chem.hazardClass.name)}">
+                                            ${chem.hazardClass.name} (${chem.hazardClass.symbol})
+                                        </span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">存储条件：</span>
+                                        <span>${chem.storageCondition || '常温'}</span>
+                                    </div>
+                                </div>
+                                <div class="vertical-divider"></div>
+                                <div class="flex-grow-1">
+                                    <h5 class="text-primary mb-3"><i class="fas fa-flask me-2"></i>其他信息</h5>
+                                    <div class="info-item">
+                                        <span class="info-label">分子式：</span>
+                                        <span>C₉H₈O₄</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">分子量：</span>
+                                        <span>180.16 g/mol</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">最近入库：</span>
+                                        <span>2025-06-10</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">负责人：</span>
+                                        <span>张研究员</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        // 绑定事件
+        document.querySelectorAll('.expand-btn').forEach(btn => {
+            btn.addEventListener('click', toggleDetailRow);
+        });
+
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', handleEdit);
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', handleDelete);
+        });
+    }
+
+    // 危险等级徽章样式
+    function getHazardBadgeClass(level) {
+        const map = {
+            '低风险': 'bg-hazard-low',
+            '中风险': 'bg-hazard-medium',
+            '高风险': 'bg-hazard-high'
+        };
+        return map[level] || 'bg-secondary';
+    }
+
+    // 展开/收起详情行
+    function toggleDetailRow(e) {
+        const btn = e.currentTarget;
+        const row = btn.closest('tr');
+        const rowId = row.dataset.id;
+        const detailContent = document.querySelector(`#detail-${rowId} .detail-content`);
+        const icon = btn.querySelector('.expand-icon');
+
+        // 切换图标和显示状态
+        if (detailContent.classList.contains('d-none')) {
+            detailContent.classList.remove('d-none');
+            row.classList.add('expanded');
+            icon.classList.add('fa-chevron-up');
+            icon.classList.remove('fa-chevron-down');
+        } else {
+            detailContent.classList.add('d-none');
+            row.classList.remove('expanded');
+            icon.classList.add('fa-chevron-down');
+            icon.classList.remove('fa-chevron-up');
+        }
+    }
+
+    // 编辑操作
+    function handleEdit(e) {
+        const btn = e.currentTarget;
+        const row = btn.closest('tr');
+        const id = row.dataset.id;
+        const chemical = chemicals.find(c => c.id == id);
+
+        alert(`准备编辑药品: ${chemical.name}`);
+        // 实际项目中这里会打开编辑模态框
+    }
+
+    // 删除操作
+    function handleDelete(e) {
+        const btn = e.currentTarget;
+        const row = btn.closest('tr');
+        const id = row.dataset.id;
+        const chemical = chemicals.find(c => c.id == id);
+
+        if (confirm(`确定删除药品: ${chemical.name}？此操作不可撤销！`)) {
+            // 实际项目中这里会发送删除请求到服务器
+            alert(`药品 ${chemical.name} 已删除`);
+        }
+    }
+
+    // 页面加载完成后渲染表格
+    document.addEventListener('DOMContentLoaded', renderChemicalTable);
+
+    // 从服务器获取未读消息数
+    function updateNotificationCount() {
+        fetch('/api/user/unread-count')
+            .then(response => response.json())
+            .then(data => {
+                // 更新顶部红点
+                document.querySelector('.fa-bell').nextElementSibling.textContent = data.total;
+
+                // 更新下拉菜单中的计数
+                document.querySelectorAll('.dropdown-item .badge')[0].textContent = data.profile;
+                document.querySelectorAll('.dropdown-item .badge')[1].textContent = data.password;
+            });
+    }
+
+    // 页面加载时初始化
+    document.addEventListener('DOMContentLoaded', updateNotificationCount);
+    function loadModule(moduleName) {
+        // 隐藏所有模块
+        document.querySelectorAll('.module-container').forEach(module => {
+          module.classList.add('d-none');
+        });
+
+        // 显示目标模块
+        document.getElementById(`${moduleName}Module`).classList.remove('d-none');
+
+        // 更新导航栏激活状态
+        document.querySelectorAll('.nav-link').forEach(link => {
+          link.classList.remove('active');
+        });
+        event.currentTarget.classList.add('active');
+
+        // 特殊模块初始化
+        if(moduleName === 'chemical') initChemicalModule();
+    }
+</script>
+</body>
+</html>
