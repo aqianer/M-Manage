@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>实验室综合管理系统</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --lab-primary: #238636;
@@ -67,6 +68,21 @@
             margin-left: auto; /* 自动占据剩余空间，推至右侧 */
             justify-content: flex-end;
         }
+
+        .user-panel > a:hover,
+        .user-panel > .dropdown-toggle:hover {
+            opacity: 0.8;
+        }
+
+        .user-panel i.fas.fa-angle-down {
+            transition: transform 0.2s ease;
+        }
+
+        .user-panel.show i.fas.fa-angle-down {
+            transform: rotate(180deg);
+        }
+
+
         
         .badge-notification {
             position: static;
@@ -128,6 +144,13 @@
                 display: none;
             }
         }
+
+        @media (max-width: 576px) {
+            .user-panel .d-sm-inline {
+                display: none !important;
+            }
+        }
+
 
         /* 红点动画 */
         @keyframes pulse {
