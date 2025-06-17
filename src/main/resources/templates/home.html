@@ -120,6 +120,33 @@
             background-color: #e9ecef;
             margin: 0 1.5rem;      /* 分隔线与两侧内容的间距 */
         }
+
+        /* 添加禁用状态样式 */
+        .permission-disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        /* 权限提示工具提示 */
+        .permission-tooltip::after {
+            content: attr(data-permission-tip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #6c757d;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .permission-tooltip:hover::after {
+            opacity: 1;
+        }
+
         @media (min-width: 992px) {
             .navbar-brand {
                 margin-right: 0.8rem; /* 大屏同步缩小间距 */
@@ -304,17 +331,16 @@
     <div id="chemicalModule" class="module-container d-none">
         <div class="container py-4">
             <div class="table-container">
-                <div class="table-header">
-                    
+                <!-- 修改药品管理模块的table-header部分 -->
+                <div class="table-header">                    
                     <div class="table-actions">
-                        <button class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-plus me-1"></i>新增药品
-                        </button>
+                        <div id="addChemicalButtonContainer"></div>
                         <button class="btn btn-sm btn-outline-secondary">
                             <i class="fas fa-filter me-1"></i>筛选
                         </button>
                     </div>
-                </div>
+                 </div>
+                 
 
                 <div class="table-responsive">
                     <table class="table table-hover table-striped align-middle">
@@ -345,12 +371,29 @@
                         </ul>
                     </nav>
                 </div>
+                <div style="position: fixed; bottom: 10px; right: 10px; z-index: 1000;">
+                    <select id="roleSwitcher" class="form-select form-select-sm">
+                        <option value="admin">管理员</option>
+                        <option value="editor">编辑员</option>
+                        <option value="viewer">观察员</option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>
     <div id="equipmentModule" class="module-container d-none">器材管理模块</div>
 </div>
 <script>
+    // 全局模拟用户身份（后期替换为后端返回值）
+    let currentUserRole = 'admin'; // 可选值：'admin'|'editor'|'viewer'
+
+    // 权限矩阵配置（后期可通过接口动态加载）
+    const PERMISSION_MATRIX = {
+        admin: ['create', 'read', 'update', 'delete'],
+        editor: ['create', 'read', 'update'],
+        viewer: ['read']
+    };
+
     // 模拟药品数据
     const chemicals = [
         {
@@ -395,11 +438,27 @@
         }
     ];
 
+    /**
+     * 权限检测函数
+     * @param {string} requiredPerm - 所需权限(create/read/update/delete)
+     * @returns {boolean} 是否拥有权限
+     */
+    function checkPermission(requiredPerm) {
+        return PERMISSION_MATRIX[currentUserRole]?.includes(requiredPerm) ?? false;
+    }
+
+
     // 渲染表格主函数
     function renderChemicalTable() {
+        // 动态渲染新增按钮
+        const addButtonContainer = document.getElementById('addChemicalButtonContainer');
+        addButtonContainer.innerHTML = ''; 
+        addButtonContainer.innerHTML = checkPermission('create') ? 
+                            `<button class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i>新增药品
+                        </button>` : ''
         const tbody = document.getElementById('chemicalTableBody');
-        tbody.innerHTML = '';
-
+        tbody.innerHTML = '';        
         chemicals.forEach(chem => {
             // 主行
             tbody.innerHTML += `
@@ -415,14 +474,20 @@
                         <span class="badge bg-primary rounded-pill">${chem.quantity}</span>
                     </td>
                     <td>${chem.storageLocation}</td>
+                    
                     <td>
-                        <button class="btn btn-sm btn-outline-warning action-btn edit-btn me-2">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger action-btn delete-btn">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        ${checkPermission('update') ? 
+                            `<button class="btn btn-sm btn-outline-warning action-btn edit-btn me-2">
+                                <i class="fas fa-edit"></i>
+                            </button>` : ''}
+                        
+                        ${checkPermission('delete') ? 
+                            `<button class="btn btn-sm btn-outline-danger action-btn delete-btn">
+                                <i class="fas fa-trash"></i>
+                            </button>` : ''}
+                        <!-- 只有阅读权限则提示文本 -->
                     </td>
+
                 </tr>
                 <!-- 详情行 -->
                 <tr class="detail-row" id="detail-${chem.id}">
@@ -584,6 +649,11 @@
         // 特殊模块初始化
         if(moduleName === 'chemical') initChemicalModule();
     }
+    // 开发动态角色切换功能
+    document.getElementById('roleSwitcher').addEventListener('change', function() {
+        currentUserRole = this.value;
+        renderChemicalTable(); // 重新渲染表格
+    });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
