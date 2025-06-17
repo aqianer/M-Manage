@@ -184,47 +184,53 @@
 
 
                 <!-- 用户信息面板 -->
-                <div class="d-flex align-items-center user-panel position-relative gap-2"> <!-- 添加gap-2控制元素间距 -->
-                    <!-- 用户头像优化 -->
-                    <img th:src="@{/images/default-avatar.png}" alt="用户头像" class="rounded-circle me-2"
+                <div class="d-flex align-items-center user-panel position-relative gap-2">
+                    <!-- 用户头像 -->
+                    <img th:src="@{/images/default-avatar.png}" alt="用户头像" class="rounded-circle"
                          style="width: 36px; height: 36px; border: 2px solid rgba(255,255,255,0.2);">
-                    <div class="dropdown">
-                        <a class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
-                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="d-none d-sm-inline me-2">[[${#authentication.name}]]</span>
-                            <!-- 未读消息红点提示 -->
-                            <span class="position-relative">
-                                <i class="fas fa-bell"></i>
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                    3
-                                    <span class="visually-hidden">未读消息</span>
-                                </span>
-                            </span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a class="dropdown-item d-flex justify-content-between align-items-center" href="#">
-                                    个人中心
-                                    <span class="badge bg-danger rounded-pill">3</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item d-flex justify-content-between align-items-center" href="#">
-                                    修改密码
-                                    <span class="badge bg-danger rounded-pill">1</span>
-                                </a>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <a class="dropdown-item" th:href="@{/logout}">
-                                    <i class="fas fa-sign-out-alt me-2"></i>退出登录
-                                </a>
-                            </li>
-                        </ul>
+                    
+                    <!-- 用户名 -->
+                    <span class="d-none d-sm-inline text-white fw-medium">
+                        [[${#authentication.name}]]
+                    </span>
+                    
+                    <!-- 未读消息红点提示 -->
+                    <div class="position-relative">
+                        <i class="fas fa-bell text-white"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            3
+                            <span class="visually-hidden">未读消息</span>
+                        </span>
                     </div>
+                    
+                    <!-- 下拉箭头按钮 -->
+                    <a class="text-white text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-angle-down"></i>
+                    </a>
+                
+                    <!-- 下拉菜单保持原样 -->
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item d-flex justify-content-between align-items-center" href="#">
+                                个人中心
+                                <span class="badge bg-danger rounded-pill">3</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex justify-content-between align-items-center" href="#">
+                                修改密码
+                                <span class="badge bg-danger rounded-pill">1</span>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" th:href="@{/logout}">
+                                <i class="fas fa-sign-out-alt me-2"></i>退出登录
+                            </a>
+                        </li>
+                    </ul>
                 </div>
+
             </div>
         </div>
     </nav>
