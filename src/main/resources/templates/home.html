@@ -395,50 +395,6 @@
         viewer: ['read']
     };
 
-    // 模拟药品数据
-    let chemicals = [
-        {
-            id: 1,
-            name: "阿司匹林",
-            casNumber: "50-78-2",
-            quantity: 50,
-            storageLocation: "A区-3层-货架2",
-            englishName: "Aspirin",
-            hazardClass: { name: "低风险", symbol: "⚠️" },
-            storageCondition: "常温干燥处"
-        },
-        {
-            id: 2,
-            name: "青霉素钠",
-            casNumber: "69-57-8",
-            quantity: 120,
-            storageLocation: "B区-1层-冷藏柜",
-            englishName: "Penicillin G Sodium",
-            hazardClass: { name: "中风险", symbol: "☣️" },
-            storageCondition: "2-8℃冷藏"
-        },
-        {
-            id: 3,
-            name: "硫酸",
-            casNumber: "7664-93-9",
-            quantity: 25,
-            storageLocation: "C区-腐蚀品柜",
-            englishName: "Sulfuric Acid",
-            hazardClass: { name: "高风险", symbol: "☠️" },
-            storageCondition: "耐酸容器，单独存放"
-        },
-        {
-            id: 4,
-            name: "葡萄糖",
-            casNumber: "50-99-7",
-            quantity: 200,
-            storageLocation: "A区-2层-货架5",
-            englishName: "Glucose",
-            hazardClass: { name: "低风险", symbol: "⚠️" },
-            storageCondition: "常温干燥处"
-        }
-    ];
-
     /**
      * 权限检测函数
      * @param {string} requiredPerm - 所需权限(create/read/update/delete)
@@ -451,133 +407,152 @@
 
     // 渲染表格主函数
     function renderChemicalTable() {
-        // TODO : 先发送get请求localhost:8080/list 根据响应去加载innerHTML,返回的list为空则加载图片，有数据则渲染然后分页
-        $.ajax({
-            url: '/api/chemicals',
-            method: 'GET',
-            timeout: 10000, // 10秒超时
-            success: function(response) {
-                
-            },
-            error:function(xhr, status, error) {
+        const tbody = document.getElementById('chemicalTableBody');
+        const tableActions = document.getElementById('tableActions');
 
+        // 清空旧数据
+        tbody.innerHTML = '';
+        tableActions.innerHTML = '';
+
+        // 显示加载状态
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">加载中...</span>
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        // 发送请求
+        $.ajax({
+            url: 'http://localhost:8080/api/chemicals',
+            method: 'GET',
+            timeout: 10000,
+            success: function(response) {
+                tbody.innerHTML = '';
+                if (!response.data || response.data.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="fas fa-box-open fa-2x mb-2"></i>
+                                <p class="mb-0">暂无药品数据</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                // 渲染数据
+                response.data.forEach(chem => {
+                    tbody.innerHTML += `
+                        <tr data-id="${chem.id}">
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary expand-btn">
+                                    <i class="fas fa-chevron-down expand-icon"></i>
+                                </button>
+                            </td>
+                            <td class="fw-medium">${chem.name}</td>
+                            <td>${chem.casNumber}</td>
+                            <td><span class="badge bg-primary rounded-pill">${chem.quantity}</span></td>
+                            <td>${chem.storageLocation}</td>
+                            <td>
+                                ${checkPermission('update') ? 
+                                    `<button class="btn btn-sm btn-outline-warning action-btn edit-btn me-2">
+                                        <i class="fas fa-edit"></i>
+                                    </button>` : ''}
+                                ${checkPermission('delete') ? 
+                                    `<button class="btn btn-sm btn-outline-danger action-btn delete-btn">
+                                        <i class="fas fa-trash"></i>
+                                    </button>` : ''}
+                                ${checkPermission('read') ?
+                                    `<button class="btn btn-sm btn-outline-primary action-btn upload-btn">
+                                        <i class="fas fa-upload"></i> 上传申请
+                                    </button>` : ''}
+                            </td>
+                        </tr>
+                        <!-- 详情行 -->
+                        <tr class="detail-row" id="detail-${chem.id}">
+                            <td colspan="6" class="p-0 border-0">
+                                <div class="detail-content d-none">
+                                    <div class="d-flex">
+                                        <div class="flex-grow-1">
+                                            <h5 class="text-primary mb-3"><i class="fas fa-info-circle me-2"></i>基本属性</h5>
+                                            <div class="info-item">
+                                                <span class="info-label">CAS号：</span>
+                                                <span class="badge bg-secondary">${chem.casNumber}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">英文名称：</span>
+                                                <span>${chem.englishName || '暂无'}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">危险等级：</span>
+                                                <span class="hazard-badge ${getHazardBadgeClass(chem.hazardClass.name)}">
+                                                    ${chem.hazardClass.name} (${chem.hazardClass.symbol})
+                                                </span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">存储条件：</span>
+                                                <span>${chem.storageCondition || '常温'}</span>
+                                            </div>
+                                        </div>
+                                        <div class="vertical-divider"></div>
+                                        <div class="flex-grow-1">
+                                            <h5 class="text-primary mb-3"><i class="fas fa-flask me-2"></i>其他信息</h5>
+                                            <div class="info-item">
+                                                <span class="info-label">分子式：</span>
+                                                <span>${chem.formula || '暂无'}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">分子量：</span>
+                                                <span>${chem.molecularWeight || '暂无'} g/mol</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">最近入库：</span>
+                                                <span>${chem.lastInboundDate || '暂无'}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">负责人：</span>
+                                                <span>${chem.responsiblePerson || '暂无'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                bindTableEvents();
+            },
+            error: function(xhr, status, error) {
+                console.error('数据加载失败:', error);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <div class="text-danger mb-2">数据加载失败</div>
+                            <button class="btn btn-sm btn-outline-danger retry-btn">
+                                <i class="fas fa-redo me-1"></i>重试
+                            </button>
+                        </td>
+                    </tr>
+                `;
+
+                document.querySelector('.retry-btn')?.addEventListener('click', renderChemicalTable);
             }
         });
 
-        // 渲染表格头
-        const tableActions = document.getElementById('tableActions')
-        tableActions.innerHTML= checkPermission('create') ?
-                            `<button class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-plus me-1"></i>新增药品
-                        </button>` : '' ;
-
+        // 渲染表格操作按钮
+        tableActions.innerHTML = checkPermission('create') 
+            ? `<button class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-plus me-1"></i>新增药品
+            </button>` 
+            : '';
         tableActions.innerHTML += '<button class="btn btn-sm btn-outline-secondary"><i class="fas fa-filter me-1"></i>筛选</button>';
-
-        const tbody = document.getElementById('chemicalTableBody');
-        tbody.innerHTML = '';        
-        // TODO：判断下chem的数组是否为空，空则innerHTML为图片空空如也，有数据则遍历渲染
-
-        
-        chemicals.forEach(chem => {
-            // 主行
-            tbody.innerHTML += `
-                <tr data-id="${chem.id}">
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary expand-btn">
-                            <i class="fas fa-chevron-down expand-icon"></i>
-                        </button>
-                    </td>
-                    <td class="fw-medium">${chem.name}</td>
-                    <td>${chem.casNumber}</td>
-                    <td>
-                        <span class="badge bg-primary rounded-pill">${chem.quantity}</span>
-                    </td>
-                    <td>${chem.storageLocation}</td>
-                    
-                    <td>
-                        ${checkPermission('update') ? 
-                            `<button class="btn btn-sm btn-outline-warning action-btn edit-btn me-2">
-                                <i class="fas fa-edit"></i>
-                            </button>` : ''}
-                        
-                        ${checkPermission('delete') ? 
-                            `<button class="btn btn-sm btn-outline-danger action-btn delete-btn">
-                                <i class="fas fa-trash"></i>
-                            </button>` : ''}
-                        <!-- 只有阅读权限则提示文本 -->
-                        ${checkPermission('read') ?
-                            `<button class="btn btn-sm btn-outline-primary action-btn upload-btn">
-                                <i class="fas fa-upload"></i> 上传申请
-                        </button>` : ''}
-                    </td>
-
-                </tr>
-                <!-- 详情行 -->
-                <tr class="detail-row" id="detail-${chem.id}">
-                    <td colspan="6" class="p-0 border-0">
-                        <div class="detail-content d-none">
-                            <div class="d-flex">
-                                <div class="flex-grow-1">
-                                    <h5 class="text-primary mb-3"><i class="fas fa-info-circle me-2"></i>基本属性</h5>
-                                    <div class="info-item">
-                                        <span class="info-label">CAS号：</span>
-                                        <span class="badge bg-secondary">${chem.casNumber}</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">英文名称：</span>
-                                        <span>${chem.englishName || '暂无'}</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">危险等级：</span>
-                                        <span class="hazard-badge ${getHazardBadgeClass(chem.hazardClass.name)}">
-                                            ${chem.hazardClass.name} (${chem.hazardClass.symbol})
-                                        </span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">存储条件：</span>
-                                        <span>${chem.storageCondition || '常温'}</span>
-                                    </div>
-                                </div>
-                                <div class="vertical-divider"></div>
-                                <div class="flex-grow-1">
-                                    <h5 class="text-primary mb-3"><i class="fas fa-flask me-2"></i>其他信息</h5>
-                                    <div class="info-item">
-                                        <span class="info-label">分子式：</span>
-                                        <span>C₉H₈O₄</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">分子量：</span>
-                                        <span>180.16 g/mol</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">最近入库：</span>
-                                        <span>2025-06-10</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">负责人：</span>
-                                        <span>张研究员</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        });
-
-        // 绑定事件
-        document.querySelectorAll('.expand-btn').forEach(btn => {
-            btn.addEventListener('click', toggleDetailRow);
-        });
-
-        document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', handleEdit);
-        });
-
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', handleDelete);
-        });
     }
+
 
     // 危险等级徽章样式
     function getHazardBadgeClass(level) {
@@ -651,6 +626,11 @@
                 document.querySelectorAll('.dropdown-item .badge')[1].textContent = data.password;
             });
     }
+
+    function initChemicalModule() {
+        renderChemicalTable();
+    }
+
 
     // 页面加载时初始化
     document.addEventListener('DOMContentLoaded', updateNotificationCount);
