@@ -164,6 +164,11 @@
         .navbar-nav .nav-link:hover {
             background-color: rgba(255,255,255,0.1);
         }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+        }
+
         
         /* 小屏幕品牌名称隐藏 */
         @media (max-width: 576px) {
@@ -205,10 +210,11 @@
             <!-- 品牌标识调整 -->
             <a class="navbar-brand text-light d-flex align-items-center" href="#" style="margin-right: 1.2rem;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="me-2"
-                     style="width: 1.4em; height: 1.4em;">
+                    style="width: 1.5rem; height: 1.5rem; object-fit: contain; object-position: center;">
                     <path fill="#63E6BE"
-                          d="M288 0L160 0 128 0C110.3 0 96 14.3 96 32s14.3 32 32 32l0 132.8c0 11.8-3.3 23.5-9.5 33.5L10.3 406.2C3.6 417.2 0 429.7 0 442.6C0 480.9 31.1 512 69.4 512l309.2 0c38.3 0 69.4-31.1 69.4-69.4c0-12.8-3.6-25.4-10.3-36.4L329.5 230.4c-6.2-10.1-9.5-21.7-9.5-33.5L320 64c17.7 0 32-14.3 32-32s-14.3-32-32-32L288 0zM192 196.8L192 64l64 0 0 132.8c0 23.7 6.6 46.9 19 67.1L309.5 320l-171 0L173 263.9c12.4-20.2 19-43.4 19-67.1z"/>
+                    d="M288 0L160 0 128 0C110.3 0 96 14.3 96 32s14.3 32 32 32l0 132.8c0 11.8-3.3 23.5-9.5 33.5L10.3 406.2C3.6 417.2 0 429.7 0 442.6C0 480.9 31.1 512 69.4 512l309.2 0c38.3 0 69.4-31.1 69.4-69.4c0-12.8-3.6-25.4-10.3-36.4L329.5 230.4c-6.2-10.1-9.5-21.7-9.5-33.5L320 64c17.7 0 32-14.3 32-32s-14.3-32-32-32L288 0zM192 196.8L192 64l64 0 0 132.8c0 23.7 6.6 46.9 19 67.1L309.5 320l-171 0L173 263.9c12.4-20.2 19-43.4 19-67.1z"/>
                 </svg>
+
                 实验室管理系统
             </a>
 
@@ -390,7 +396,7 @@
     };
 
     // 模拟药品数据
-    const chemicals = [
+    let chemicals = [
         {
             id: 1,
             name: "阿司匹林",
@@ -445,8 +451,18 @@
 
     // 渲染表格主函数
     function renderChemicalTable() {
-        // 动态渲染新增按钮
-        const addButtonContainer = document.getElementById('addChemicalButtonContainer');
+        // TODO : 先发送get请求localhost:8080/list 根据响应去加载innerHTML,返回的list为空则加载图片，有数据则渲染然后分页
+        $.ajax({
+            url: '/api/chemicals',
+            method: 'GET',
+            timeout: 10000, // 10秒超时
+            success: function(response) {
+                
+            },
+            error:function(xhr, status, error) {
+
+            }
+        });
 
         // 渲染表格头
         const tableActions = document.getElementById('tableActions')
@@ -459,6 +475,9 @@
 
         const tbody = document.getElementById('chemicalTableBody');
         tbody.innerHTML = '';        
+        // TODO：判断下chem的数组是否为空，空则innerHTML为图片空空如也，有数据则遍历渲染
+
+        
         chemicals.forEach(chem => {
             // 主行
             tbody.innerHTML += `
@@ -660,5 +679,6 @@
     });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </body>
 </html>
