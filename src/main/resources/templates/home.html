@@ -781,57 +781,69 @@
     });
 
     document.addEventListener('DOMContentLoaded', function () {
-      const addChemicalButton = document.getElementById('addChemicalButton');
-      const addChemicalModal = document.getElementById('addChemicalModal');
-      const chemicalModalInstance = new bootstrap.Modal(addChemicalModal);
-        
-      // 绑定点击事件显示模态框
-      addChemicalButton.addEventListener('click', () => {
-        chemicalModalInstance.show();
-      });
-    });
-    document.addEventListener('DOMContentLoaded', function () {
-      const addChemicalButton = document.getElementById('addChemicalButton');
-      const addChemicalModal = document.getElementById('addChemicalModal');
-      const chemicalModalInstance = new bootstrap.Modal(addChemicalModal);
-        
-      // ... 其他初始化代码 ...
-        
-      // 添加焦点回归逻辑
-      addChemicalModal.addEventListener('hidden.bs.modal', () => {
-        if (addChemicalButton) {
-          addChemicalButton.focus(); // 将焦点返回到触发按钮
-        } else {
-          document.body.focus(); // 如果触发按钮不存在，聚焦页面主体
+        const addChemicalModal = document.getElementById('addChemicalModal');
+        const addChemicalButton = document.getElementById('addChemicalButton');
+
+        // 避免重复初始化
+        if (!bootstrap.Modal.getInstance(addChemicalModal)) {
+            const chemicalModalInstance = new bootstrap.Modal(addChemicalModal);
+
+            addChemicalButton.addEventListener('click', () => {
+                chemicalModalInstance.show();
+            });
+
+            // *************** 修改点2：优化遮罩层清理逻辑 ***************
+            addChemicalModal.addEventListener('hidden.bs.modal', () => {
+                // ✅ 新增：强制移除所有残留的backdrop
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                
+                // 焦点回归逻辑
+                if (addChemicalButton) {
+                    addChemicalButton.focus();
+                } else {
+                    document.body.focus();
+                }
+            });
+
+            // *************** 修改点3：添加显式关闭监听 ***************
+            addChemicalModal.addEventListener('click', function(e) {
+                // 显式处理关闭按钮点击
+                if (e.target.closest('[data-bs-dismiss="modal"]')) {
+                    chemicalModalInstance.hide();
+                }
+            });
         }
-      });
     });
+
+    
 </script>
 <!-- 新增药品模态框 -->
 <div class="modal fade" id="addChemicalModal" tabindex="-1" aria-labelledby="addChemicalModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="addChemicalModalLabel">新增药品</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addChemicalModalLabel">新增药品</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="chemicalSelect" class="form-label">选择药品</label>
+                    <!-- ✅ 修复：移除错误的</option>标签 -->
+                    <select class="form-select" id="chemicalSelect" aria-label="药品选择">
+                        <option selected value="">请选择药品...</option>
+                        <!-- 药品选项将在此处动态加载 -->
+                    </select>
+                </div>
+                <div id="alertContainer"></div>
+            </div>
+            <!-- ✅ 修复：确保footer位于正确的DOM层级 -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="submitAddChemical">确认添加</button>
+            </div>
         </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="chemicalSelect" class="form-label">选择药品</label>
-            <select class="form-select" id="chemicalSelect" aria-label="药品选择">
-              <option selected value="">请选择药品...</option>
-              <!-- 药品选项将在此处动态加载 -->
-            </option>
-          </div>
-          <div id="alertContainer"></div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-          <button type="button" class="btn btn-primary" id="submitAddChemical">确认添加</button>
-        </div>
-      </div>
     </div>
-  </div>
+</div>
   
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
