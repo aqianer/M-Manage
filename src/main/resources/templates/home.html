@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <title>实验室综合管理系统</title>
+    <!-- 移除Thymeleaf命名空间 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --lab-primary: #238636;
@@ -13,64 +16,79 @@
             --nav-border: #409EFF;
             --title-font: 'Segoe UI', system-ui, sans-serif;
         }
-        
+
+        /* 保留原有CSS样式（此处省略具体样式以保持简洁） */
+        :root {
+            --lab-primary: #238636;
+            --lab-secondary: #2c8c47;
+            --lab-bg: #f8f9fa;
+            --nav-border: #409EFF;
+            --title-font: 'Segoe UI', system-ui, sans-serif;
+        }
+
         .navbar-brand {
             font-family: var(--title-font);
             font-size: 1.5rem;
             font-weight: 600;
             letter-spacing: 0.5px;
             color: #e6e6e6 !important;
-            margin-right: 0.8rem; /* 缩小品牌标识与主导航的间距 */
+            margin-right: 0.8rem;
+            /* 缩小品牌标识与主导航的间距 */
         }
-        
+
         .nav-custom {
             background: linear-gradient(145deg, #161b22 0%, #0d1117 100%);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
-        
+
         .nav-link-custom {
             color: #e6e6e6 !important;
             padding: 12px 20px;
             transition: all 0.3s;
             border-left: 3px solid transparent;
         }
-        
+
         .nav-link-custom:hover {
             background: rgba(64, 158, 255, 0.1);
             border-left-color: var(--nav-border);
         }
-        
+
         .brand-icon {
             width: 32px;
             filter: invert(87%) sepia(28%) saturate(1207%) hue-rotate(162deg);
         }
-        
+
         /* 导航容器布局核心调整 */
         .navbar-collapse {
             flex-grow: 0 !important;
-            justify-content: flex-start; /* 主导航左对齐 */
-            width: 100%; /* 确保容器占满宽度 */
+            justify-content: flex-start;
+            /* 主导航左对齐 */
+            width: 100%;
+            /* 确保容器占满宽度 */
         }
-        
+
         .navbar-nav {
-            margin-left: 0 !important; /* 重置Bootstrap默认的左侧边距 */
+            margin-left: 0 !important;
+            /* 重置Bootstrap默认的左侧边距 */
         }
-        
+
         .navbar-nav .nav-item {
-            margin-right: 1.5rem; /* 保持菜单项间间距 */
+            margin-right: 1.5rem;
+            /* 保持菜单项间间距 */
         }
-        
+
         /* 用户面板强制右对齐 */
         .user-panel {
             display: flex;
             align-items: center;
             gap: 1rem;
-            margin-left: auto; /* 自动占据剩余空间，推至右侧 */
+            margin-left: auto;
+            /* 自动占据剩余空间，推至右侧 */
             justify-content: flex-end;
         }
 
-        .user-panel > a:hover,
-        .user-panel > .dropdown-toggle:hover {
+        .user-panel>a:hover,
+        .user-panel>.dropdown-toggle:hover {
             opacity: 0.8;
         }
 
@@ -83,42 +101,54 @@
         }
 
 
-        
+
         .badge-notification {
             position: static;
             transform: translateY(-2px);
         }
-        
+
         .dropdown-menu {
             min-width: 240px;
         }
-        
+
         .dropdown-item {
             display: flex;
             align-items: center;
             padding: 0.75rem 1.25rem;
         }
-       
-                /* 新增信息项布局样式 */
+
+        /* 新增信息项布局样式 */
         .info-item {
-            display: flex;          /* 使用Flex布局 */
-            gap: 0.8rem;           /* 标签与内容间距 */
-            margin-bottom: 0.8rem; /* 信息项上下间距 */
+            display: flex;
+            /* 使用Flex布局 */
+            gap: 0.8rem;
+            /* 标签与内容间距 */
+            margin-bottom: 0.8rem;
+            /* 信息项上下间距 */
         }
+
         .info-label {
-            width: 80px;           /* 固定标签宽度（可根据实际调整） */
-            text-align: right;     /* 标签右对齐 */
-            color: #6c757d;        /* 标签颜色（浅灰色） */
-            font-weight: 500;      /* 标签字体加粗 */
+            width: 80px;
+            /* 固定标签宽度（可根据实际调整） */
+            text-align: right;
+            /* 标签右对齐 */
+            color: #6c757d;
+            /* 标签颜色（浅灰色） */
+            font-weight: 500;
+            /* 标签字体加粗 */
         }
+
         .info-content {
-            flex-grow: 1;          /* 内容部分占据剩余空间 */
+            flex-grow: 1;
+            /* 内容部分占据剩余空间 */
         }
+
         /* 调整垂直分隔线样式（可选优化） */
         .vertical-divider {
             width: 1px;
             background-color: #e9ecef;
-            margin: 0 1.5rem;      /* 分隔线与两侧内容的间距 */
+            margin: 0 1.5rem;
+            /* 分隔线与两侧内容的间距 */
         }
 
         /* 添加禁用状态样式 */
@@ -143,33 +173,38 @@
             opacity: 0;
             transition: opacity 0.2s;
         }
+
         .permission-tooltip:hover::after {
             opacity: 1;
         }
 
         @media (min-width: 992px) {
             .navbar-brand {
-                margin-right: 0.8rem; /* 大屏同步缩小间距 */
+                margin-right: 0.8rem;
+                /* 大屏同步缩小间距 */
             }
+
             .navbar-collapse {
                 margin-left: 0;
             }
         }
-        
+
         /* 补充菜单项悬停效果 */
         .navbar-nav .nav-link {
             transition: all 0.2s;
             border-radius: 4px;
         }
+
         .navbar-nav .nav-link:hover {
-            background-color: rgba(255,255,255,0.1);
+            background-color: rgba(255, 255, 255, 0.1);
         }
+
         .navbar-brand {
             display: flex;
             align-items: center;
         }
 
-        
+
         /* 小屏幕品牌名称隐藏 */
         @media (max-width: 576px) {
             .navbar-brand span {
@@ -186,666 +221,188 @@
 
         /* 红点动画 */
         @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-        100% { transform: scale(1); }
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
+
         .badge.bg-danger {
-        animation: pulse 1.5s infinite;
+            animation: pulse 1.5s infinite;
         }
 
         /* 下拉菜单悬停效果 */
         .dropdown-item:hover {
-        background-color: #f8f9fa;
-        transition: background-color 0.2s ease;
+            background-color: #f8f9fa;
+            transition: background-color 0.2s ease;
         }
 
+        /* Vue特有样式增强 */
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.15s;
+        }
+
+        .fade-enter,
+        .fade-leave-to {
+            opacity: 0;
+        }
     </style>
 </head>
+
 <body>
-<div class="lab-container">
-    <!-- 导航栏 -->
-    <nav class="navbar navbar-expand-lg nav-custom navbar-dark">
-        <div class="container-fluid">
-            <!-- 品牌标识调整 -->
-            <a class="navbar-brand text-light d-flex align-items-center" href="#" style="margin-right: 1.2rem;">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="me-2"
-                    style="width: 1.5rem; height: 1.5rem; object-fit: contain; object-position: center;">
-                    <path fill="#63E6BE"
-                    d="M288 0L160 0 128 0C110.3 0 96 14.3 96 32s14.3 32 32 32l0 132.8c0 11.8-3.3 23.5-9.5 33.5L10.3 406.2C3.6 417.2 0 429.7 0 442.6C0 480.9 31.1 512 69.4 512l309.2 0c38.3 0 69.4-31.1 69.4-69.4c0-12.8-3.6-25.4-10.3-36.4L329.5 230.4c-6.2-10.1-9.5-21.7-9.5-33.5L320 64c17.7 0 32-14.3 32-32s-14.3-32-32-32L288 0zM192 196.8L192 64l64 0 0 132.8c0 23.7 6.6 46.9 19 67.1L309.5 320l-171 0L173 263.9c12.4-20.2 19-43.4 19-67.1z"/>
-                </svg>
+    
+    <!-- Vue依赖 -->    
+    <script type="module" src="https://unpkg.com/vue@3/dist/vue.esm-browser.js"></script>    
+    <script type="module" src="https://unpkg.com/vue-router@4/dist/vue-router.esm-browser.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="module" src="/assets/main.js"></script>
 
-                实验室管理系统
-            </a>
-
-            <!-- 折叠按钮（小屏幕） -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <!-- 主导航菜单 -->
-            <div class="collapse navbar-collapse" id="mainNav" style="margin-left: -0.5rem;"> <!-- 新增负边距拉近与品牌标识的距离 -->
-                <!-- 功能菜单调整 -->
-                <ul class="navbar-nav mb-2 mb-lg-0">
-                    <li class="nav-item mx-2"> <!-- 增加左右边距 -->
-                        <a class="nav-link active" aria-current="page" href="#" onclick="loadModule('home')">首页</a>
-                    </li>
-                    <li class="nav-item mx-2">
-                        <a class="nav-link" href="#" onclick="loadModule('chemical')">药品管理</a>
-                    </li>
-                    <li class="nav-item mx-2">
-                        <a class="nav-link" href="#" onclick="loadModule('equipment')">器材管理</a>
-                    </li>
-                </ul>
-
-
-                <!-- 用户信息面板 -->
-                <div class="d-flex align-items-center user-panel position-relative gap-2">
-                    <!-- 用户头像 -->
-                    <img th:src="@{/images/default-avatar.png}" alt="用户头像" class="rounded-circle"
-                         style="width: 36px; height: 36px; border: 2px solid rgba(255,255,255,0.2);">
-                    
-                    <!-- 用户名 -->
-                    <span class="d-none d-sm-inline text-white fw-medium">
-                        [[${#authentication.name}]]
-                    </span>
-                    
-                    <!-- 未读消息红点提示 -->
-                    <div class="position-relative">
-                        <i class="fas fa-bell text-white"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            3
-                            <span class="visually-hidden">未读消息</span>
-                        </span>
-                    </div>
-                    
-                    <!-- 下拉箭头按钮 -->
-                    <a class="text-white text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-angle-down"></i>
-                    </a>
-                
-                    <!-- 下拉菜单保持原样 -->
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li>
-                            <a class="dropdown-item d-flex justify-content-between align-items-center" href="#">
-                                个人中心
-                                <span class="badge bg-danger rounded-pill">3</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item d-flex justify-content-between align-items-center" href="#">
-                                修改密码
-                                <span class="badge bg-danger rounded-pill">1</span>
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item" th:href="@{/logout}">
-                                <i class="fas fa-sign-out-alt me-2"></i>退出登录
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-            </div>
-        </div>
-    </nav>
-
-    <!-- 主内容区（模拟数据容器） -->
-    <!-- 主内容区 -->
-    <div class="module-container" id="homeModule">
-        <!-- 统计卡片组 -->
-        <div class="row g-3">
-            <div class="col-md-4">
-                <div class="card bg-light">
-                    <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted">今日入库</h6>
-                        <h3 class="card-title">12</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card bg-light">
-                    <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted">待处理申请</h6>
-                        <h3 class="card-title">5</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card bg-light">
-                    <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted">库存预警</h6>
-                        <h3 class="card-title">3</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 最近操作 -->
-        <div class="card mt-4">
-            <div class="card-header">最近操作记录</div>
-            <div class="card-body p-0">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">[10:30] 张三 提交药品领用申请</li>
-                    <li class="list-group-item">[09:15] 李四 完成器材归还登记</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div id="chemicalModule" class="module-container d-none">
-        <div class="container py-4">
-            <div class="table-container">
-                <!-- 修改药品管理模块的table-header部分 -->
-                <div class="table-header">                    
-                    <div id="tableActions"></div>
-                 </div>
-                 
-
-                <div class="table-responsive">
-                    <table class="table table-hover table-striped align-middle">
-                        <thead class="table-light">
-                        <tr>
-                            <th style="width: 50px"></th>
-                            <th>药品名称</th>
-                            <th>CAS号</th>
-                            <th>库存数量</th>
-                            <th>存储位置</th>
-                            <th>操作</th>
-                        </tr>
-                        </thead>
-                        <tbody id="chemicalTableBody">
-                        <!-- 表格内容将通过JavaScript动态生成 -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="pagination-container">
-                    <nav>
-                        <ul class="pagination mb-0">
-                            <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item"><a class="page-link" href="#">下一页</a></li>
-                        </ul>
-                    </nav>
-                </div>
-                <div style="position: fixed; bottom: 10px; right: 10px; z-index: 1000;">
-                    <select id="roleSwitcher" class="form-select form-select-sm">
-                        <option value="admin">管理员</option>
-                        <option value="editor">编辑员</option>
-                        <option value="viewer">观察员</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="equipmentModule" class="module-container d-none">器材管理模块</div>
-</div>
-<script>
-    // 全局模拟用户身份（后期替换为后端返回值）
-    let currentUserRole = 'admin'; // 可选值：'admin'|'editor'|'viewer'
-
-    // 权限矩阵配置（后期可通过接口动态加载）
-    const PERMISSION_MATRIX = {
-        admin: ['create', 'update', 'delete'],
-        editor: ['create', 'update'],
-        viewer: ['read']
-    };
-
-    // 模拟药品字典数据（实际开发中应从后端获取）
-    const chemicalDictionary = [
-        { id: 1, name: '氢氧化钠', casNumber: '1310-73-2' },
-        { id: 2, name: '硫酸', casNumber: '7664-93-9' },
-        { id: 3, name: '乙醇', casNumber: '64-17-5' },
-        { id: 4, name: '盐酸', casNumber: '7647-01-0' },
-        { id: 5, name: '丙酮', casNumber: '67-64-1' }
+</body>
+<script type="module">
+    import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
+    import { createRouter, createWebHashHistory } from 'https://unpkg.com/vue-router@4/dist/vue-router.esm-browser.js';
+    
+    
+    // 路由配置
+    const routes = [
+        { path: '/', name: 'Home', component: { template: '<home-page />' } },
+        { path: '/chemical', name: 'Chemical', component: { template: '<chemical-page :chemicals="chemicals" :loading="loading" :error="error" :current-role="currentUserRole" :permissions="permissions" @update-chemicals="loadChemicals"/>' } },
+        { path: '/equipment', name: 'Equipment', component: { template: '<equipment-page />' } }
     ];
 
-    /**
-     * 初始化新增药品功能
-     */
-     function initAddChemical() {
-        const modal = new bootstrap.Modal(document.getElementById('addChemicalModal'));
-
-        // ✅ 使用事件委托绑定点击事件
-        document.getElementById('tableActions').addEventListener('click', function(e) {
-            if (e.target.closest('#addChemicalButton')) {
-                populateChemicalSelect();
-                modal.show();
-            }
-        });
-
-        document.getElementById('submitAddChemical').addEventListener('click', handleSubmit);
-    }
-
-
-    /**
-     * 填充药品下拉框
-     */
-    function populateChemicalSelect() {
-      const select = document.getElementById('chemicalSelect');
-      select.innerHTML = '<option selected value="">请选择药品...</option>';
-    
-      chemicalDictionary.forEach(chem => {
-        const option = document.createElement('option');
-        option.value = chem.id;
-        option.textContent = `${chem.name} (CAS: ${chem.casNumber})`;
-        select.appendChild(option);
-      });
-    }
-
-    /**
-     * 提交处理函数
-     */
-    function handleSubmit() {
-      const select = document.getElementById('chemicalSelect');
-      const alertContainer = document.getElementById('alertContainer');
-      const selectedId = select.value;
-
-      // 清除之前的提示
-      alertContainer.innerHTML = '';
-
-      // 验证选择
-      if (!selectedId) {
-        showAlert('请选择药品', 'danger');
-        return;
-      }
-
-      // 获取选中的药品信息
-      const selectedChemical = chemicalDictionary.find(c => c.id == selectedId);
-
-      // 模拟提交到后端
-      showLoadingState(true);
-
-      // 模拟异步请求（实际应替换为真实的API调用）
-      setTimeout(() => {
-        showLoadingState(false);
-
-        // 模拟成功响应
-        showAlert('药品添加成功', 'success');
-
-        // 模拟延迟关闭模态框
-        setTimeout(() => {
-          bootstrap.Modal.getInstance(document.getElementById('addChemicalModal')).hide();
-          // 可在此处刷新表格数据
-          // renderChemicalTable();
-        }, 1000);
-      }, 1500);
-    }
-
-    /**
-     * 显示加载状态
-     * @param {boolean} isLoading 
-     */
-    function showLoadingState(isLoading) {
-      const submitBtn = document.getElementById('submitAddChemical');
-      const spinner = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>`;
-    
-      if (isLoading) {
-        submitBtn.innerHTML = spinner + '提交中...';
-        submitBtn.disabled = true;
-      } else {
-        submitBtn.innerHTML = '确认添加';
-        submitBtn.disabled = false;
-      }
-    }
-
-    /**
-     * 显示提示信息
-     * @param {string} message 
-     * @param {string} type 
-     */
-    function showAlert(message, type = 'primary') {
-      const alertContainer = document.getElementById('alertContainer');
-      alertContainer.innerHTML = `
-        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-          ${message}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      `;
-    }
-
-    // 在药品模块初始化时调用
-    function initChemicalModule() {
-      renderChemicalTable();
-      initAddChemical(); // 初始化新增药品功能
-    }
-
-    /**
-     * 权限检测函数
-     * @param {string} requiredPerm - 所需权限(create/read/update/delete)
-     * @returns {boolean} 是否拥有权限
-     */
-    function checkPermission(requiredPerm) {
-        return PERMISSION_MATRIX[currentUserRole]?.includes(requiredPerm) ?? false;
-    }
-
-
-    // 渲染表格主函数
-    function renderChemicalTable() {
-        const tbody = document.getElementById('chemicalTableBody');
-        const tableActions = document.getElementById('tableActions');
-
-        // 清空旧数据
-        tbody.innerHTML = '';
-        tableActions.innerHTML = '';
-
-        // 显示加载状态
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6" class="text-center py-4">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">加载中...</span>
-                    </div>
-                </td>
-            </tr>
-        `;
-
-        // 发送请求
-        $.ajax({
-            url: 'http://localhost:8080/api/chemicals',
-            method: 'GET',
-            timeout: 10000,
-            success: function(response) {
-                tbody.innerHTML = '';
-                if (!response.data || response.data.length === 0) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">
-                                <i class="fas fa-box-open fa-2x mb-2"></i>
-                                <p class="mb-0">暂无药品数据</p>
-                            </td>
-                        </tr>
-                    `;
-                    return;
-                }
-
-                // 渲染数据
-                response.data.forEach(chem => {
-                    tbody.innerHTML += `
-                        <tr data-id="${chem.id}">
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary expand-btn">
-                                    <i class="fas fa-chevron-down expand-icon"></i>
-                                </button>
-                            </td>
-                            <td class="fw-medium">${chem.name}</td>
-                            <td>${chem.casNumber}</td>
-                            <td><span class="badge bg-primary rounded-pill">${chem.quantity}</span></td>
-                            <td>${chem.storageLocation}</td>
-                            <td>
-                                ${checkPermission('update') ? 
-                                    `<button class="btn btn-sm btn-outline-warning action-btn edit-btn me-2">
-                                        <i class="fas fa-edit"></i>
-                                    </button>` : ''}
-                                ${checkPermission('delete') ? 
-                                    `<button class="btn btn-sm btn-outline-danger action-btn delete-btn">
-                                        <i class="fas fa-trash"></i>
-                                    </button>` : ''}
-                                ${checkPermission('read') ?
-                                    `<button class="btn btn-sm btn-outline-primary action-btn upload-btn">
-                                        <i class="fas fa-upload"></i> 上传申请
-                                    </button>` : ''}
-                            </td>
-                        </tr>
-                        <!-- 详情行 -->
-                        <tr class="detail-row" id="detail-${chem.id}">
-                            <td colspan="6" class="p-0 border-0">
-                                <div class="detail-content d-none">
-                                    <div class="d-flex">
-                                        <div class="flex-grow-1">
-                                            <h5 class="text-primary mb-3"><i class="fas fa-info-circle me-2"></i>基本属性</h5>
-                                            <div class="info-item">
-                                                <span class="info-label">CAS号：</span>
-                                                <span class="badge bg-secondary">${chem.casNumber}</span>
-                                            </div>
-                                            <div class="info-item">
-                                                <span class="info-label">英文名称：</span>
-                                                <span>${chem.englishName || '暂无'}</span>
-                                            </div>
-                                            <div class="info-item">
-                                                <span class="info-label">危险等级：</span>
-                                                <span class="hazard-badge ${getHazardBadgeClass(chem.hazardClass.name)}">
-                                                    ${chem.hazardClass.name} (${chem.hazardClass.symbol})
-                                                </span>
-                                            </div>
-                                            <div class="info-item">
-                                                <span class="info-label">存储条件：</span>
-                                                <span>${chem.storageCondition || '常温'}</span>
-                                            </div>
-                                        </div>
-                                        <div class="vertical-divider"></div>
-                                        <div class="flex-grow-1">
-                                            <h5 class="text-primary mb-3"><i class="fas fa-flask me-2"></i>其他信息</h5>
-                                            <div class="info-item">
-                                                <span class="info-label">分子式：</span>
-                                                <span>${chem.formula || '暂无'}</span>
-                                            </div>
-                                            <div class="info-item">
-                                                <span class="info-label">分子量：</span>
-                                                <span>${chem.molecularWeight || '暂无'} g/mol</span>
-                                            </div>
-                                            <div class="info-item">
-                                                <span class="info-label">最近入库：</span>
-                                                <span>${chem.lastInboundDate || '暂无'}</span>
-                                            </div>
-                                            <div class="info-item">
-                                                <span class="info-label">负责人：</span>
-                                                <span>${chem.responsiblePerson || '暂无'}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                bindTableEvents();
-            },
-            error: function(xhr, status, error) {
-                console.error('数据加载失败:', error);
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="text-center py-4">
-                            <div class="text-danger mb-2">数据加载失败</div>
-                            <button class="btn btn-sm btn-outline-danger retry-btn">
-                                <i class="fas fa-redo me-1"></i>重试
-                            </button>
-                        </td>
-                    </tr>
-                `;
-
-                document.querySelector('.retry-btn')?.addEventListener('click', renderChemicalTable);
-            }
-        });
-
-        // 渲染表格操作按钮
-        tableActions.innerHTML = checkPermission('create') 
-            ? `<button id="addChemicalButton" class="btn btn-sm btn-outline-primary" tabindex="0">
-               <i class="fas fa-plus me-1"></i>新增药品
-               </button>` 
-            : '';
-        tableActions.innerHTML += '<button class="btn btn-sm btn-outline-secondary"><i class="fas fa-filter me-1"></i>筛选</button>';
-
-        // ✅ 在按钮插入 DOM 后调用初始化函数
-        initAddChemical();
-    }
-
-
-    // 危险等级徽章样式
-    function getHazardBadgeClass(level) {
-        const map = {
-            '低风险': 'bg-hazard-low',
-            '中风险': 'bg-hazard-medium',
-            '高风险': 'bg-hazard-high'
-        };
-        return map[level] || 'bg-secondary';
-    }
-
-    // 展开/收起详情行
-    function toggleDetailRow(e) {
-        const btn = e.currentTarget;
-        const row = btn.closest('tr');
-        const rowId = row.dataset.id;
-        const detailContent = document.querySelector(`#detail-${rowId} .detail-content`);
-        const icon = btn.querySelector('.expand-icon');
-
-        // 切换图标和显示状态
-        if (detailContent.classList.contains('d-none')) {
-            detailContent.classList.remove('d-none');
-            row.classList.add('expanded');
-            icon.classList.add('fa-chevron-up');
-            icon.classList.remove('fa-chevron-down');
-        } else {
-            detailContent.classList.add('d-none');
-            row.classList.remove('expanded');
-            icon.classList.add('fa-chevron-down');
-            icon.classList.remove('fa-chevron-up');
-        }
-    }
-
-    // 编辑操作
-    function handleEdit(e) {
-        const btn = e.currentTarget;
-        const row = btn.closest('tr');
-        const id = row.dataset.id;
-        const chemical = chemicals.find(c => c.id == id);
-
-        alert(`准备编辑药品: ${chemical.name}`);
-        // 实际项目中这里会打开编辑模态框
-    }
-
-    // 删除操作
-    function handleDelete(e) {
-        const btn = e.currentTarget;
-        const row = btn.closest('tr');
-        const id = row.dataset.id;
-        const chemical = chemicals.find(c => c.id == id);
-
-        if (confirm(`确定删除药品: ${chemical.name}？此操作不可撤销！`)) {
-            // 实际项目中这里会发送删除请求到服务器
-            alert(`药品 ${chemical.name} 已删除`);
-        }
-    }
-
-    // 页面加载完成后渲染表格
-    document.addEventListener('DOMContentLoaded', renderChemicalTable);
-
-    // 从服务器获取未读消息数
-    function updateNotificationCount() {
-        fetch('/api/user/unread-count')
-            .then(response => response.json())
-            .then(data => {
-                // 更新顶部红点
-                document.querySelector('.fa-bell').nextElementSibling.textContent = data.total;
-
-                // 更新下拉菜单中的计数
-                document.querySelectorAll('.dropdown-item .badge')[0].textContent = data.profile;
-                document.querySelectorAll('.dropdown-item .badge')[1].textContent = data.password;
-            });
-    }
-
-    function initChemicalModule() {
-        renderChemicalTable();
-    }
-
-
-    // 页面加载时初始化
-    document.addEventListener('DOMContentLoaded', updateNotificationCount);
-    function loadModule(moduleName) {
-        // 隐藏所有模块
-        document.querySelectorAll('.module-container').forEach(module => {
-          module.classList.add('d-none');
-        });
-
-        // 显示目标模块
-        document.getElementById(`${moduleName}Module`).classList.remove('d-none');
-
-        // 更新导航栏激活状态
-        document.querySelectorAll('.nav-link').forEach(link => {
-          link.classList.remove('active');
-        });
-        event.currentTarget.classList.add('active');
-
-        // 特殊模块初始化
-        if(moduleName === 'chemical') initChemicalModule();
-    }
-    // 开发动态角色切换功能
-    document.getElementById('roleSwitcher').addEventListener('change', function() {
-        currentUserRole = this.value;
-        renderChemicalTable(); // 重新渲染表格
+    const router = VueRouter.createRouter({
+        history: VueRouter.createWebHashHistory(),
+        routes
     });
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const addChemicalModal = document.getElementById('addChemicalModal');
-        const addChemicalButton = document.getElementById('addChemicalButton');
-
-        // 避免重复初始化
-        if (!bootstrap.Modal.getInstance(addChemicalModal)) {
-            const chemicalModalInstance = new bootstrap.Modal(addChemicalModal);
-
-            addChemicalButton.addEventListener('click', () => {
-                chemicalModalInstance.show();
+    // Vue应用
+    const app = Vue.createApp({
+        setup() {
+            const state = Vue.reactive({
+                currentUserRole: 'admin',
+                notifications: { total: 3, profile: 3, password: 1 },
+                chemicals: [],
+                loading: false,
+                error: null,
+                alert: { show: false, message: '', type: 'primary' },
+                selectedChemical: null,
+                modal: null
             });
 
-            // *************** 修改点2：优化遮罩层清理逻辑 ***************
-            addChemicalModal.addEventListener('hidden.bs.modal', () => {
-                // ✅ 新增：强制移除所有残留的backdrop
-                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-                
-                // 焦点回归逻辑
-                if (addChemicalButton) {
-                    addChemicalButton.focus();
-                } else {
-                    document.body.focus();
+            const permissions = Vue.computed(() => PERMISSION_MATRIX[state.currentUserRole] || []);
+
+            const methods = {
+                handleRoleChange(role) {
+                    state.currentUserRole = role;
+                },
+                navigate(path) {
+                    router.push(path);
+                },
+                async loadChemicals() {
+                    try {
+                        state.loading = true;
+                        // 模拟API调用
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        state.chemicals = [
+                            { id: 1, name: '氢氧化钠', casNumber: '1310-73-2', quantity: 150, storageLocation: 'A区-01架' },
+                            { id: 2, name: '硫酸', casNumber: '7664-93-9', quantity: 80, storageLocation: 'B区-03架' }
+                        ];
+                        state.error = null;
+                    } catch (err) {
+                        state.error = '数据加载失败，请重试';
+                    } finally {
+                        state.loading = false;
+                    }
+                },
+                showAlertDialog(message, type = 'primary') {
+                    state.alert = { show: true, message, type };
+                    setTimeout(() => state.alert.show = false, 3000);
+                },
+                handleSubmit() {
+                    if (!state.selectedChemical) {
+                        this.showAlertDialog('请选择药品', 'danger');
+                        return;
+                    }
+
+                    state.loading = true;
+                    // 模拟提交过程
+                    setTimeout(() => {
+                        this.showAlertDialog('药品添加成功', 'success');
+                        state.loading = false;
+                        // 关闭模态框
+                        if (this.modal) this.modal.hide();
+                    }, 1500);
+                },
+                getHazardBadgeClass(level) {
+                    const map = {
+                        '低风险': 'bg-success',
+                        '中风险': 'bg-warning',
+                        '高风险': 'bg-danger'
+                    };
+                    return map[level] || 'bg-secondary';
+                }
+            };
+
+            Vue.watchEffect(() => {
+                if (router.currentRoute.value.name === 'Chemical') {
+                    methods.loadChemicals();
                 }
             });
 
-            // *************** 修改点3：添加显式关闭监听 ***************
-            addChemicalModal.addEventListener('click', function(e) {
-                // 显式处理关闭按钮点击
-                if (e.target.closest('[data-bs-dismiss="modal"]')) {
-                    chemicalModalInstance.hide();
+            Vue.onMounted(() => {
+                // 初始化模态框
+                const modalElement = document.getElementById('addChemicalModal');
+                if (modalElement) {
+                    methods.modal = new bootstrap.Modal(modalElement);
                 }
+            });
+
+            return {
+                ...Vue.toRefs(state),
+                ...methods,
+                chemicalDictionary,
+                permissions,
+                getHazardBadgeClass: methods.getHazardBadgeClass
+            };
+        }
+    });
+
+    // 注册全局组件
+    app.component('nav-bar', NavBar);
+    app.component('chemical-page', ChemicalPage);
+    app.component('home-page', HomePage);
+    app.component('equipment-page', EquipmentPage);
+    app.component('add-chemical-modal', AddChemicalModal);
+
+    // 全局混合处理模态框绑定
+    app.mixin({
+        mounted() {
+            // 自动初始化所有模态框
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                new bootstrap.Modal(modal);
             });
         }
     });
 
-    
+    // 挂载应用
+    app.use(router);
+    app.mount('#app');
+
+    // 全局错误处理
+    window.onerror = function (message, source, lineno, colno, error) {
+        console.error('JavaScript Error:', message, 'at', source, `line ${lineno}`);
+        return true;
+    };
 </script>
-<!-- 新增药品模态框 -->
-<div class="modal fade" id="addChemicalModal" tabindex="-1" aria-labelledby="addChemicalModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addChemicalModalLabel">新增药品</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label for="chemicalSelect" class="form-label">选择药品</label>
-                    <!-- ✅ 修复：移除错误的</option>标签 -->
-                    <select class="form-select" id="chemicalSelect" aria-label="药品选择">
-                        <option selected value="">请选择药品...</option>
-                        <!-- 药品选项将在此处动态加载 -->
-                    </select>
-                </div>
-                <div id="alertContainer"></div>
-            </div>
-            <!-- ✅ 修复：确保footer位于正确的DOM层级 -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" id="submitAddChemical">确认添加</button>
-            </div>
-        </div>
-    </div>
-</div>
-  
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-</body>
+
 </html>
