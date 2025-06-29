@@ -22,7 +22,7 @@ public class SecurityConfig  {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login", "/register", "/public/**", "/send-code", "/error/**").permitAll()
+                        .requestMatchers("/login", "/register", "/public/**", "/send-code", "/error/**","/", "/index.html", "/assets/**", "/vite.svg", "/favicon.ico").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()
                 )
@@ -34,7 +34,7 @@ public class SecurityConfig  {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login") // 明确指定登录处理路径
-                        .defaultSuccessUrl("/home", true)
+                        .defaultSuccessUrl("/index.html", true) // 修改为跳转到 index.html
                         .failureUrl("/login?error=true")
                 )
                 .logout(logout -> logout

@@ -26,7 +26,7 @@
                 </ul>
 
                 <div class="d-flex align-items-center user-panel position-relative gap-2 ms-auto">
-                    <img src="https://via.placeholder.com/36" class="rounded-circle" style="width: 36px; height: 36px;">
+                    <img src="/static/images/default-avatar.png" class="rounded-circle" style="width: 36px; height: 36px;">
 
                     <span class="d-none d-sm-inline text-white fw-medium">当前用户</span>
 
@@ -62,8 +62,7 @@
                 </div>
 
                 <div class="ms-3" v-if="permissions.includes('create')">
-                    <!-- 修复：使用 :value 和 @change 替代 v-model -->
-                    <select :value="currentRole" @change="handleRoleChange" class="form-select form-select-sm">
+                    <select v-model="currentRole" @change="handleRoleChange" class="form-select form-select-sm">
                         <option value="admin">管理员</option>
                         <option value="editor">编辑员</option>
                         <option value="viewer">观察员</option>
@@ -74,42 +73,22 @@
     </nav>
 </template>
 
-<script setup>
-import { defineProps, defineEmits } from 'vue';
+<script>
+export default {
+    props: ['currentRole', 'notifications', 'permissions'],
+    emits: ['role-change', 'navigate'],
+    setup(props, { emit }) {
+        const handleRoleChange = (e) => {
+            emit('role-change', e.target.value);
+        };
 
-// 定义 props - 接收父组件传递的数据
-const props = defineProps({
-  currentRole: {
-    type: String,
-    default: 'admin'
-  },
-  notifications: {
-    type: Object,
-    default: () => ({
-      total: 0,
-      profile: 0,
-      password: 0
-    })
-  },
-  permissions: {
-    type: Array,
-    default: () => []
-  },
-  onNavigate: {
-    type: Function,
-    default: () => {}
-  }
-});
+        const navigate = (path) => {
+            emit('navigate', path);
+        };
 
-// 定义 emits - 向父组件发送事件
-const emits = defineEmits(['role-change']);
-
-// 处理角色切换逻辑
-const handleRoleChange = (e) => {
-  const newRole = e.target.value;
-  // 向父组件发送角色变更事件
-  emits('role-change', newRole);
-};
+        return { handleRoleChange, navigate };
+    }
+}
 </script>
 
 <style scoped>

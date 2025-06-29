@@ -59,7 +59,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-        
+
         <!-- 补充参数校验支持 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -146,45 +146,119 @@
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
                 <version>1.12.1</version>
+                <configuration>
+                    <!-- 指定工作目录 -->
+                    <workingDirectory>src/frontend</workingDirectory>
+                    <!-- 跳过 Node.js 安装，直接使用系统环境变量中的 Node.js -->
+                    <skip>true</skip>
+                </configuration>
                 <executions>
-                    <!-- 安装 Node.js -->
+                    <!-- 清理前端构建目录 -->
                     <execution>
-                        <id>install-node</id>
-                        <goals><goal>install-node-and-npm</goal></goals>
+                        <id>clean-frontend</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>clean</phase>
                         <configuration>
-                            <nodeVersion>v18.19.0</nodeVersion>
+                            <arguments>run clean</arguments>
                         </configuration>
                     </execution>
-                    <!-- 安装前端依赖 -->
+                    <!-- 安装 Node.js -->
+<!--                    <execution>-->
+<!--                        <id>install-node</id>-->
+<!--                        <goals>-->
+<!--                            <goal>install-node-and-npm</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <nodeVersion>v18.19.0</nodeVersion>-->
+<!--                            <skip>true</skip>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+                    <!-- 安装项目的 npm 依赖 -->
                     <execution>
                         <id>npm-install</id>
-                        <goals><goal>npm</goal></goals>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
                         <configuration>
                             <arguments>install</arguments>
                         </configuration>
                     </execution>
                     <!-- 构建 Vue 并复制到 static -->
+                    <!-- 运行构建命令 -->
                     <execution>
-                        <id>npm-build</id>
-                        <goals><goal>npm</goal></goals>
+                        <id>npm-run-build</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
                         <configuration>
                             <arguments>run build</arguments>
                         </configuration>
                     </execution>
+                </executions>
+            </plugin>
+            <!-- Maven Resources Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <!-- 清理 static 目录 -->
                     <execution>
-                        <id>copy-resources</id>
-                        <phase>compile</phase>
-                        <goals><goal>copy-resources</goal></goals>
+                        <id>clean-static</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
                         <configuration>
                             <outputDirectory>${project.basedir}/src/main/resources/static</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${project.basedir}/frontend/dist</directory>
-                                    <includes>
-                                        <include>**/*</include>
-                                    </includes>
+                                    <directory>${project.basedir}/src/main/resources/static</directory>
+                                    <filtering>false</filtering>
+                                    <excludes>
+                                        <exclude>**/*</exclude>
+                                    </excludes>
                                 </resource>
                             </resources>
+                        </configuration>
+                    </execution>
+                    <!-- 复制构建好的前端资源到 static 目录 -->
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.basedir}/src/main/resources/static</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/src/frontend/dist</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                            <!-- 启用覆盖 -->
+                            <overwrite>true</overwrite>
+                            <!-- 启用非空目录覆盖 -->
+                            <nonFilteredFileExtensions>
+                                <nonFilteredFileExtension>html</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>js</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>css</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>svg</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>ico</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>png</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>jpg</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>jpeg</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>gif</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>woff</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>woff2</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>ttf</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>eot</nonFilteredFileExtension>
+                            </nonFilteredFileExtensions>
                         </configuration>
                     </execution>
                 </executions>

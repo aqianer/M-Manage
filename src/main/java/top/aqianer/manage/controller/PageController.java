@@ -33,4 +33,10 @@ public class PageController {
         model.addAttribute("username", details.getUsername());
         return "home";
     }
+
+    // 添加根路径处理，重定向到 index.html
+    @GetMapping("/")
+    public String index() {
+        return "redirect:/index.html";
+    }
 }
