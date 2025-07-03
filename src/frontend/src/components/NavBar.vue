@@ -3,13 +3,16 @@
     <div class="navbar-left">
       <div class="navbar-logo">实验室管理系统</div>
       <ul class="navbar-tabs">
-        <li class="navbar-tab" :class="{active: activeTab === 'chemical'}" @click="selectTab('chemical')">
+        <li class="navbar-tab dashborad-tab" :class="{active: activeTab === 'dashborad'}" @click="selectTab('dashborad')">
+          首页
+        </li>
+        <li class="navbar-tab chemical-tab" :class="{active: activeTab === 'chemical'}" @click="selectTab('chemical')">
           药品管理
         </li>
-        <li class="navbar-tab" :class="{active: activeTab === 'equipment'}" @click="selectTab('equipment')">
+        <li class="navbar-tab equipment-tab" :class="{active: activeTab === 'equipment'}" @click="selectTab('equipment')">
           器材管理
         </li>
-        <li class="navbar-tab" :class="{active: activeTab === 'reserved'}" @click="selectTab('reserved')">
+        <li class="navbar-tab reserved-tab" :class="{active: activeTab === 'reserved'}" @click="selectTab('reserved')">
           预留功能
         </li>
       </ul>
@@ -24,11 +27,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-const activeTab = ref('chemical')
+import { defineProps, defineEmits } from 'vue'
+const props = defineProps({
+  activeTab: String
+})
+const emit = defineEmits(['update:activeTab'])
 function selectTab(tab) {
-  activeTab.value = tab
-  // 可在此处添加路由跳转或事件
+  emit('update:activeTab', tab)
 }
 </script>
 
@@ -94,5 +99,17 @@ function selectTab(tab) {
 .username {
   font-size: 1rem;
   color: #333;
+}
+.dashborad-tab {
+  color: #1976d2;
+}
+.chemical-tab {
+  color: #43a047;
+}
+.equipment-tab {
+  color: #ff9800;
+}
+.reserved-tab {
+  color: #8e24aa;
 }
 </style> 
