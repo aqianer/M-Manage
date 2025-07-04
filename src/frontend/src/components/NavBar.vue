@@ -100,8 +100,10 @@ defineExpose({ isMobileMenuOpen });
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
   z-index: 1000;
-  width: 100%;
+  width: 100vw;
+  max-width: none;
   box-sizing: border-box;
+  //margin: 0 -2rem;
 }
 
 .left-section {
