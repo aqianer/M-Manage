@@ -52,6 +52,7 @@ const navRef = ref(null);
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   overflow-x: hidden;
+  max-width: none;
 }
 
 
