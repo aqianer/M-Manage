@@ -45,13 +45,15 @@ const navRef = ref(null);
 
 <style>
 #app, html, body {
-  width: 100%;
+  width: 100% !important;
   min-height: 100vh;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
 }
+
 
 body {
   background-color: #f8f9fa;
