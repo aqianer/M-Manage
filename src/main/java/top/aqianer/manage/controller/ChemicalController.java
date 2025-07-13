@@ -62,5 +62,12 @@ public class ChemicalController {
         }
     }
 
+    /**
+     * 测试提交
+     */
+    private void testPush() {
+
+    }
+
 
 }
